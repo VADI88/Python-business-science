@@ -214,7 +214,7 @@ sales_by_month_cat2_plot = (
     + geom_line(color="#2c3e50")
     + geom_smooth(method="lm", se=False, color="blue")
     + scale_y_continuous(labels = usd_fmt) # type: ignore
-    + scale_x_datetime(breaks = date_breaks("2 years"),labels = date_format("%Y-%m")) #type : ignpre
+    + scale_x_datetime(breaks = date_breaks("2 years"),labels = date_format("%Y-%m")) # type: ignore
     + facet_wrap("category_2", ncol=3, scales="free_y")
     + labs(title="Revenue by week", x="", y="Revenue in USD$")
     + theme(
