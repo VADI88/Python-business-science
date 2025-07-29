@@ -3,3 +3,5 @@
 *.ipynb_checkpoint
 *__pycache__
 *.idea
+*.DS_Store
+/Challenge 1 2/.ipynb_checkpoints/
