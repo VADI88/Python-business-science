@@ -13,9 +13,10 @@ def summarize_by_time(
     data: pd.DataFrame,
     value_column: List[str],
     date_column: Optional[str] = None,
+    wide_format: bool = True,
     groups: Optional[Any] = None,
     rules: Literal["D", "MS", "YS"] = "D",
-    agg_func=np.sum,
+    agg_func="sum",
     time_format: Literal["timestamp", "period"] = "timestamp",
     na_value: int = 0,
     *args,
@@ -24,6 +25,7 @@ def summarize_by_time(
     """
 
     Args:
+        wide_format ():
         data (pd.DataFrame):
         date_column (str):
         value_column (List[str]):
@@ -56,7 +58,10 @@ def summarize_by_time(
     if groups:
         data = data.unstack(groups)  # type: ignore
 
-    if time_format == "period":
+    if not wide_format:
+        data = data.stack(groups)
+
+    if (time_format == "period") & wide_format:
         data.index = data.index.to_period()
 
     data = data.fillna(value=na_value)

@@ -23,6 +23,7 @@ dependencies = [
     "pip>=25.1.1",
     "plotly>=6.1.2",
     "plotnine>=0.14.5",
+    "plydata>=0.4.3",
     "pmdarima>=2.0.4",
     "ppscore>=1.1.0",
     "pydantic>=2.11.7",

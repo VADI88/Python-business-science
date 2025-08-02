@@ -1654,6 +1654,18 @@ wheels = [
 ]
 
 [[package]]
+name = "plydata"
+version = "0.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pandas" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/54/4ceb8bd2ebbad8f10d1a2b3c6bca26bf886d6cb41eaf4c1cf84f521447fa/plydata-0.4.3.tar.gz", hash = "sha256:2ead8b6c0cf2f9f483b6f017026789839425838eba840b160d74643956a9fb12", size = 293755, upload-time = "2020-12-08T13:52:49.117Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/44/2629efff9cda091bf0d0027d6b12eda4b004e72b49a52db7e00990be4e14/plydata-0.4.3-py3-none-any.whl", hash = "sha256:28a92b66f7bc317c35a39ee340bbdb66c215d12c02d1cb7f1a2997b3d9854f21", size = 299470, upload-time = "2020-12-08T13:52:33.636Z" },
+]
+
+[[package]]
 name = "pmdarima"
 version = "2.0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1964,6 +1976,7 @@ dependencies = [
     { name = "pip" },
     { name = "plotly" },
     { name = "plotnine" },
+    { name = "plydata" },
     { name = "pmdarima" },
     { name = "ppscore" },
     { name = "pydantic" },
@@ -2001,6 +2014,7 @@ requires-dist = [
     { name = "pip", specifier = ">=25.1.1" },
     { name = "plotly", specifier = ">=6.1.2" },
     { name = "plotnine", specifier = ">=0.14.5" },
+    { name = "plydata", specifier = ">=0.4.3" },
     { name = "pmdarima", specifier = ">=2.0.4" },
     { name = "ppscore", specifier = ">=1.1.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
