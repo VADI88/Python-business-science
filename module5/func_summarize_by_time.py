@@ -1,11 +1,11 @@
 # IMPORTS
 
-from typing import Literal, Optional, List, Any
+from typing import Any, List, Literal, Optional
 
 import numpy as np
 import pandas as pd
 from path import Path
-from pydantic import validate_call, ConfigDict
+from pydantic import ConfigDict, validate_call
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
@@ -16,15 +16,15 @@ raw_folder_path = Path("data/data_raw")
 conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
 
 bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
-bike_order_line_df["order_date"] = pd.to_datetime(bike_order_line_df["order_date"])
+bike_order_line_df["order_date"] = pd.to_datetime(
+    bike_order_line_df["order_date"]
+)
 
 bike_order_line_df[["category_2", "order_date", "total_price"]].groupby(
     ["category_2", pd.Grouper(key="order_date", freq="MS")]
 ).aggregate(np.sum).unstack("category_2").reset_index().assign(
     order_date=lambda x: x["order_date"].dt.to_period()
-).set_index(
-    "order_date"
-)
+).set_index("order_date")
 
 
 @validate_call(config=ConfigDict(arbitrary_types_allowed=True))

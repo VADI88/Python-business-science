@@ -4,7 +4,6 @@
 import pandas as pd
 from path import Path
 
-
 # 1.0 FILES ----
 wrangled_folder_path = Path("data/data_wrangled")
 

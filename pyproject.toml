@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "black>=25.1.0",
+    "isort>=7.0.0",
     "jedi>=0.19.2",
     "jinja2>=3.1.6",
     "joblib>=1.5.1",
@@ -30,6 +31,7 @@ dependencies = [
     "pyjanitor>=0.31.0",
     "radian>=0.6.15",
     "rich>=14.0.0",
+    "ruff>=0.14.6",
     "scikit-learn>=1.7.0",
     "scikit-misc>=0.5.1",
     "seaborn>=0.13.2",
@@ -40,3 +42,17 @@ dependencies = [
     "xlsxwriter>=3.2.3",
     "zict>=3.0.0",
 ]
+
+[tool.ruff]
+# Set the maximum line length to 79.
+line-length = 79
+
+[tool.ruff.lint]
+# Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that
+# overlap with the use of a formatter, like Black, but we can override this behavior by
+# explicitly adding the rule.
+ignore = ["E402"]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

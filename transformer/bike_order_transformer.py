@@ -1,67 +1,45 @@
 # SQL DATABASES (Module 2): Working with SQLAlchemy ----
-from gc import collect
-
-# IMPORTS ----
-# %%
-import pandas as pd
-import numpy as np
-from path import Path
-from typing import List, Dict, Literal, Optional
-import sqlalchemy as sql
-import janitor  # type: ignore
 import os
+from typing import Literal
+import janitor  #
 
-SELECTED_COLUMN_TO_KEEP: List[str] = [
-    "order_id",
-    "order_line",
-    "order_date",
-    "model",
-    "quantity",
-    "price",
-    "total_price",
-    "bikeshop_name",
-    "location",
-    "category_1",
-    "category_2",
-    "frame_material",
-    "city",
-    "state",
-]
+import pandas as pd
+from path import Path
+
+from my_pandas_extension.utils import with_db_connection
+from settings import SELECTED_COLUMN_TO_KEEP
+from transformer.data_access import DataAccess
 
 
-class BikeOrderTransformer:
-
-    def __init__(self, conn_string: str):
-        """
-
-        Args:
-            conn_string (str): SQLITE connection string.
-
-        """
-        self.engine = sql.create_engine(conn_string)
-
-    def collect_data(self, table_name: str) -> pd.DataFrame:
-        query = f"SELECT * FROM {table_name}"
-        with self.engine.connect() as conn:
-            df = pd.read_sql(sql=query, con=conn)
-        return df
+class BikeOrderTransformer(DataAccess):
+    def __init__(self):
+        super().__init__()
 
     def transform_data(self) -> pd.DataFrame:
         # Collect raw tables
-        bikes_df = self.collect_data("bikes")
-        order_lines_df = self.collect_data("order_lines")
-        bike_shop_df = self.collect_data("bike_shops")
+        bikes_df = self.read_data_from_db(table_name="bikes")
+        order_lines_df = self.read_data_from_db(table_name="order_lines")
+        bike_shop_df = self.read_data_from_db(table_name="bike_shops")
 
         # Transform: Join, Clean, Derive
         bike_order_line_joined_df: pd.DataFrame = order_lines_df.merge(
             bikes_df, how="left", left_on="product_id", right_on="bike_id"
-        ).merge(bike_shop_df, how="left", left_on="customer_id", right_on="bikeshop_id")
+        ).merge(
+            bike_shop_df,
+            how="left",
+            left_on="customer_id",
+            right_on="bikeshop_id",
+        )
 
         bike_order_cleaned_df = (
             bike_order_line_joined_df.deconcatenate_column(  # type: ignore
                 "description",
                 sep=" - ",
-                new_column_names=["category_1", "category_2", "frame_material"],
+                new_column_names=[
+                    "category_1",
+                    "category_2",
+                    "frame_material",
+                ],
             )
             .deconcatenate_column(
                 "location",
@@ -82,7 +60,6 @@ class BikeOrderTransformer:
         file_name: str,
         file_type: Literal["csv", "xlsx", "pkl"] = "csv",
     ):
-
         if not os.path.exists(path):
             os.mkdir(path=path)
 

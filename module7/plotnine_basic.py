@@ -1,22 +1,28 @@
 # Imports
 
-import pandas as pd
-import numpy as np
-from path import Path
-from my_pandas_extension.timeseries_func import summarize_by_time
-from transformer.bike_order_transformer import BikeOrderTransformer
-from plotnine import *
-from transformer.forecasting import Forecaster
-import mizani.labels as ml
 import mizani.formatters as fl
+import pandas as pd
+from path import Path
+from plotnine import (
+    aes,
+    expand_limits,
+    geom_col,
+    geom_smooth,
+    ggplot,
+    labs,
+    scale_x_datetime,
+    scale_y_continuous,
+    theme_light,
+)
 
-database_folder_path = Path("data/database")
+from transformer.bike_order_transformer import BikeOrderTransformer
 
-conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
 
-bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
+bike_order_line_df = BikeOrderTransformer().transform_data()
 
-bike_order_line_df["order_date"] = pd.to_datetime(bike_order_line_df["order_date"])
+bike_order_line_df["order_date"] = pd.to_datetime(
+    bike_order_line_df["order_date"]
+)
 
 # Step 1 : Data summarization
 bike_sales_y_df = bike_order_line_df.summarize_by_time(

@@ -1,18 +1,41 @@
 # Imports
 
+import mizani.formatters as fl
+import mizani.labels as ml
+import numpy as np
 import pandas as pd
 from path import Path
-import matplotlib.pyplot as plt
-
-from my_pandas_extension.timeseries_func import summarize_by_time
-from transformer.bike_order_transformer import BikeOrderTransformer
-from plotnine import *
-import janitor
+from plotnine import (
+    aes,
+    coord_flip,
+    element_rect,
+    element_text,
+    expand_limits,
+    facet_wrap,
+    geom_boxplot,
+    geom_col,
+    geom_density,
+    geom_histogram,
+    geom_jitter,
+    geom_label,
+    geom_line,
+    geom_point,
+    geom_smooth,
+    geom_text,
+    geom_violin,
+    ggplot,
+    labs,
+    scale_color_cmap_d,
+    scale_x_datetime,
+    scale_y_continuous,
+    theme,
+    theme_light,
+    theme_minimal,
+    theme_tufte,
+)
 from plydata.cat_tools import cat_reorder
 
-import numpy as np
-import mizani.labels as ml
-import mizani.formatters as fl
+from transformer.bike_order_transformer import BikeOrderTransformer
 
 database_folder_path = Path("data/database")
 
@@ -20,7 +43,9 @@ conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
 
 bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
 
-bike_order_line_df["order_date"] = pd.to_datetime(bike_order_line_df["order_date"])
+bike_order_line_df["order_date"] = pd.to_datetime(
+    bike_order_line_df["order_date"]
+)
 
 # 1.0 Scatter Plots ----
 # - Great for Continuous vs Continuous
@@ -83,7 +108,9 @@ bike_sales_by_cat2_df = (
     .agg(revenue=("total_price", np.sum))
     .sort_values("revenue", ascending=False)
     .assign(
-        category_2=lambda x: cat_reorder(x["category_2"], x["revenue"], ascending=True)
+        category_2=lambda x: cat_reorder(
+            x["category_2"], x["revenue"], ascending=True
+        )
     )
 )
 
@@ -117,7 +144,10 @@ unit_price_by_models_df = bike_order_line_df.select(
 
 # Step 2: Visualize
 p = (
-    ggplot(data=unit_price_by_models_df, mapping=aes("price", fill="frame_material"))
+    ggplot(
+        data=unit_price_by_models_df,
+        mapping=aes("price", fill="frame_material"),
+    )
     + geom_histogram(bins=25, color="white")
     + facet_wrap("frame_material", ncol=1)
     + theme_tufte()
@@ -128,7 +158,10 @@ p.show()
 # Density ----
 
 p = (
-    ggplot(data=unit_price_by_models_df, mapping=aes("price", fill="frame_material"))
+    ggplot(
+        data=unit_price_by_models_df,
+        mapping=aes("price", fill="frame_material"),
+    )
     + geom_density(color="white")
     + facet_wrap("frame_material", ncol=1)
     + theme_tufte()

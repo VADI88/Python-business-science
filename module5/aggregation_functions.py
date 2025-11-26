@@ -1,19 +1,18 @@
 # IMPORTS
-import pandas as pd
-from transformer.bike_order_transformer import BikeOrderTransformer
-from path import Path
+from typing import Annotated, Literal
+
 import numpy as np
-from pydantic import validate_call, StrictFloat, ConfigDict, Field, ValidationError
+import pandas as pd
 from pandas import Series
-from typing import Literal, Annotated
+from path import Path
+from pydantic import ConfigDict, Field, StrictFloat, validate_call
+
+from transformer.bike_order_transformer import BikeOrderTransformer
 
 database_folder_path = Path("data/database")
 
-raw_folder_path = Path("data/data_raw")
 
-conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
-
-bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
+bike_order_line_df = BikeOrderTransformer().transform_data()
 
 # 1.0 EXAMINING FUNCTIONS ----
 

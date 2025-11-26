@@ -1,72 +1,80 @@
-from typing import Literal, Optional, List, Any
+from typing import (
+    Annotated,
+    Hashable,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+)
 
 import numpy as np
 import pandas as pd
-from pydantic import validate_call, StrictFloat, ConfigDict, Field, ValidationError
-from typing import Literal, Annotated
 import pandas_flavor as pf  # type: ignore
+from pandas.core.groupby.generic import DataFrameGroupBy
+from pydantic import ConfigDict, Field, StrictFloat, validate_call
+
+GroupKeys = Sequence[Hashable]
+ValueCols = Sequence[str]
 
 
 @pf.register_dataframe_method
 @validate_call(config=ConfigDict(arbitrary_types_allowed=True))
 def summarize_by_time(
     data: pd.DataFrame,
-    value_column: List[str],
+    value_column: ValueCols,
     date_column: Optional[str] = None,
     wide_format: bool = True,
-    groups: Optional[Any] = None,
+    groups: Optional[GroupKeys] = None,
     rules: Literal["D", "MS", "YS"] = "D",
-    agg_func="sum",
+    agg_func: Union[str, callable] = "sum",
     time_format: Literal["timestamp", "period"] = "timestamp",
     na_value: int = 0,
     *args,
     **kwargs,
 ) -> pd.DataFrame:
     """
-
-    Args:
-        wide_format ():
-        data (pd.DataFrame):
-        date_column (str):
-        value_column (List[str]):
-        groups (Optional[Any]):
-        rules (Literal[str]):
-        agg_func ():
-        time_format ():
-        na_value ():
-        *args ():
-        **kwargs ():
-
-    Returns: pd.DataFrame
-
+    Summarize values grouped by time period and optional group keys.
     """
-    group_by_column: List = []
 
-    if date_column:
-        datecolumn = pd.Grouper(key=date_column, freq=rules)
-        group_by_column.insert(0, datecolumn)
+    group_by_column: List[Union[pd.Grouper, Hashable]] = []
 
-    if groups:
-        for grp in groups:
-            group_by_column.append(grp)
+    # Add time grouper
+    if date_column is not None:
+        group_by_column.append(pd.Grouper(key=date_column, freq=rules))
 
+    # Add grouping columns
+    if groups is not None:
+        group_by_column.extend(groups)
+
+    grouped: Union[pd.DataFrame, DataFrameGroupBy]
+
+    # Apply grouping if needed
     if group_by_column:
-        data = data.groupby(group_by_column)
+        grouped = data.groupby(group_by_column)
+    else:
+        grouped = data
 
-    data = data[value_column].agg(func=agg_func, *args, **kwargs)
+    # Aggregate
+    aggregated = grouped[value_column].agg(agg_func, *args, **kwargs)
 
-    if groups:
-        data = data.unstack(groups)  # type: ignore
+    # Unstack group levels
+    if groups is not None:
+        aggregated = aggregated.unstack(list(groups))
 
-    if not wide_format:
-        data = data.stack(groups)
+    # Convert to long format if required
+    if not wide_format and groups is not None:
+        aggregated = aggregated.stack(list(groups))
 
-    if (time_format == "period") & wide_format:
-        data.index = data.index.to_period()
+    # Change index to PeriodIndex if needed
+    if time_format == "period" and wide_format:
+        if isinstance(aggregated.index, pd.DatetimeIndex):
+            aggregated.index = aggregated.index.to_period()
 
-    data = data.fillna(value=na_value)
+    # Fill NA values
+    aggregated = aggregated.fillna(na_value)
 
-    return data
+    return pd.DataFrame(aggregated)
 
 
 @pf.register_dataframe_method

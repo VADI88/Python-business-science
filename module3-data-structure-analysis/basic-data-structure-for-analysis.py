@@ -6,18 +6,12 @@ from path import Path
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
-database_folder_path = Path("data/database")
 
-conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
-
-bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
+bike_order_line_df = BikeOrderTransformer().transform_data()
 
 type(bike_order_line_df)  # <class 'pandas.core.frame.DataFrame'>
 
-type(
-    bike_order_line_df
-).mro()  # [<class 'pandas.core.frame.DataFrame'>, <class 'pandas.core.generic.NDFrame'>, <class 'pandas.core.base.PandasObject'>, <class 'pandas.core.accessor.DirNamesMixin'>, <class 'pandas.core.indexing.IndexingMixin'>, <class 'pandas.core.arraylike.OpsMixin'>, <class 'object'>]
-
+type(bike_order_line_df).mro()
 
 # Attributes
 bike_order_line_df.shape

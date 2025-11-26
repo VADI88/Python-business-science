@@ -1,26 +1,25 @@
 # IMPORTS
+import warnings
+
+import numpy as np
 import pandas as pd
 from path import Path
 from sktime.forecasting.arima import AutoARIMA
-from my_pandas_extension.timeseries_func import summarize_by_time
-import numpy as np
 from sktime.utils import plotting
 from tqdm import tqdm
-import warnings
 
 warnings.filterwarnings("ignore")
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
-database_folder_path = Path("data/database")
-
 raw_folder_path = Path("data/data_raw")
 
-conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
 
-bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
+bike_order_line_df = BikeOrderTransformer().transform_data()
 
-bike_order_line_df["order_date"] = pd.to_datetime(bike_order_line_df["order_date"])
+bike_order_line_df["order_date"] = pd.to_datetime(
+    bike_order_line_df["order_date"]
+)
 
 # 1.0 Data Summarization
 
@@ -92,7 +91,9 @@ for col in tqdm(columns):
 
     # Combine into single pandas dataframe
 
-    predictions_return_Df = pd.concat([y, predictions, predictions_interval], axis=1)
+    predictions_return_Df = pd.concat(
+        [y, predictions, predictions_interval], axis=1
+    )
 
     predictions_return_Df.columns = ["value", "prediction", "ci_lo", "ci_hi"]
 

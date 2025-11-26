@@ -1,12 +1,10 @@
 # SQL DATABASES (Module 2): Working with SQLAlchemy ----
-from operator import index
+import os
 
 # %%
 import pandas as pd
-from path import Path
 import sqlalchemy as sql
-import os
-import janitor  # type: ignore
+from path import Path
 
 # Creating Database folder
 
@@ -33,9 +31,7 @@ conn = engine.connect()
 
 bikes_df = pd.read_excel(raw_folder_path / "bikes.xlsx").clean_names()  # type: ignore
 
-bike_shop_df = pd.read_excel(
-    raw_folder_path / "bikeshops.xlsx"
-).clean_names()  # type: ignore
+bike_shop_df = pd.read_excel(raw_folder_path / "bikeshops.xlsx").clean_names()  # type: ignore
 
 order_lines_df = pd.read_excel(
     io=raw_folder_path / "orderlines.xlsx", converters={"order.date": str}
