@@ -1,21 +1,26 @@
 # IMPORTS
 
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from path import Path
+import pandas as pd
 from mizani.formatters import currency_format
-from plotnine import ggplot, aes, geom_col, facet_wrap, theme_minimal, coord_flip
+from path import Path
+from plotnine import (
+    aes,
+    coord_flip,
+    facet_wrap,
+    geom_col,
+    ggplot,
+    theme_minimal,
+)
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
-database_folder_path = Path("data/database")
 
 raw_folder_path = Path("data/data_raw")
 
-conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
 
-bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
+bike_order_line_df = BikeOrderTransformer().transform_data()
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.expand_frame_repr", False)
@@ -61,12 +66,14 @@ pd.concat([object_df, numeric_df], axis=1)
 
 bike_order_line_df.sort_values(by=["total_price"])  # ascending
 
-bike_order_line_df.sort_values(by=["total_price"], ascending=False)  # descending
+bike_order_line_df.sort_values(
+    by=["total_price"], ascending=False
+)  # descending
 
 (
-    bike_order_line_df.filter(regex="(date$)|(^cat)|(price$)", axis=1).sort_values(
-        by=["order_date", "total_price"], ascending=[True, False]
-    )
+    bike_order_line_df.filter(
+        regex="(date$)|(^cat)|(price$)", axis=1
+    ).sort_values(by=["order_date", "total_price"], ascending=[True, False])
 )
 
 # 2.0 SELECTING ROWS
@@ -89,9 +96,13 @@ price_threshold_2 = 1000
 
 # isin methods
 
-bike_order_line_df[bike_order_line_df.category_2.isin(["Triathalon", "Over Mountain"])]
+bike_order_line_df[
+    bike_order_line_df.category_2.isin(["Triathalon", "Over Mountain"])
+]
 
-bike_order_line_df[~bike_order_line_df.category_2.isin(["Triathalon", "Over Mountain"])]
+bike_order_line_df[
+    ~bike_order_line_df.category_2.isin(["Triathalon", "Over Mountain"])
+]
 
 # iloc
 
@@ -156,7 +167,9 @@ pd.cut(bike_order_line_df["price"], bins=3, labels=["high", "medium", "low"])
     bike_order_line_df[["model", "price"]]
     .drop_duplicates()
     .assign(
-        price_group=lambda x: pd.qcut(x["price"], q=3, labels=["high", "medium", "low"])
+        price_group=lambda x: pd.qcut(
+            x["price"], q=3, labels=["high", "medium", "low"]
+        )
     )
     .pivot(index="model", columns="price_group", values="price")
 )
@@ -164,7 +177,11 @@ pd.cut(bike_order_line_df["price"], bins=3, labels=["high", "medium", "low"])
 # 4.0 Grouping
 # 4.1 Aggregating (No Grouping)
 
-(bike_order_line_df.select_dtypes(exclude="object").drop("order_date", axis=1).sum())
+(
+    bike_order_line_df.select_dtypes(exclude="object")
+    .drop("order_date", axis=1)
+    .sum()
+)
 
 # Summary functions
 
@@ -174,7 +191,11 @@ bike_order_line_df.nunique()
 
 bike_order_line_df.isna().sum()  # Provides summary for missing varaibles
 
-(bike_order_line_df.select_dtypes(exclude="object").drop("order_date", axis=1).std())
+(
+    bike_order_line_df.select_dtypes(exclude="object")
+    .drop("order_date", axis=1)
+    .std()
+)
 
 # 4.2 Aggregating with grouping
 
@@ -189,7 +210,10 @@ bike_order_line_df.isna().sum()  # Provides summary for missing varaibles
 summary_df_1 = (
     bike_order_line_df[["category_1", "category_2", "total_price"]]
     .groupby(["category_1", "category_2"])
-    .agg(total_price=("total_price", "sum"), median_price=("total_price", "median"))
+    .agg(
+        total_price=("total_price", "sum"),
+        median_price=("total_price", "median"),
+    )
     .reset_index()
 )
 
@@ -198,7 +222,9 @@ summary_df_1 = (
 summary_df_2 = (
     bike_order_line_df[["category_1", "category_2", "total_price", "quantity"]]
     .groupby(["category_1", "category_2"])
-    .agg(total_price=("total_price", "sum"), total_quantity=("quantity", "sum"))
+    .agg(
+        total_price=("total_price", "sum"), total_quantity=("quantity", "sum")
+    )
     .reset_index()
 )
 
@@ -207,14 +233,19 @@ summary_df_2 = (
 
 summary_df_3 = (
     bike_order_line_df[["category_2", "order_date", "total_price", "quantity"]]
-    .groupby([pd.Grouper(key="order_date", freq="1W"), "category_2"], as_index=False)
+    .groupby(
+        [pd.Grouper(key="order_date", freq="1W"), "category_2"], as_index=False
+    )
     .agg("sum")
 )
 
 (
     summary_df_3.set_index("order_date")
     .groupby(["category_2"])
-    .apply(lambda x: (x.total_price - x.total_price.mean()) / (x.total_price.std()))
+    .apply(
+        lambda x: (x.total_price - x.total_price.mean())
+        / (x.total_price.std())
+    )
     .reset_index()
     .pivot(index="order_date", columns="category_2", values="total_price")
 )  # .plot
@@ -277,9 +308,7 @@ bike_revenue_wider_df.sort_values(
     by=["Mountain"], ascending=False
 ).style.highlight_max().format(
     {"Mountain": lambda x: "$" + usd(x)[0], "Road": lambda x: "$" + usd(x)[0]}
-).to_excel(
-    "bikeshop_name_revenue.xlsx", index=False
-)
+).to_excel("bikeshop_name_revenue.xlsx", index=False)
 
 
 bike_revenue_wider_df = pd.read_excel("bikeshop_name_revenue.xlsx")
@@ -325,7 +354,10 @@ plot.draw(True)
 # Without columns
 
 pd.pivot_table(
-    bike_order_line_df, values=["total_price"], index="category_1", aggfunc=np.sum
+    bike_order_line_df,
+    values=["total_price"],
+    index="category_1",
+    aggfunc=np.sum,
 )
 
 
@@ -436,4 +468,3 @@ sales_cat2_daily_df.groupby("category_2").total_price.transform(np.mean)
 # 10 pipe
 
 # See the notes
-

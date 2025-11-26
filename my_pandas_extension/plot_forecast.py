@@ -1,25 +1,17 @@
 # Plotting Imports
-import pandas as pd
-import numpy as np
-
 import mizani.formatters as ml
-
+import numpy as np
+import pandas as pd
 from plotnine import aes
-
-from plotnine.labels import labs
-from plotnine.scales.scale_manual import scale_color_manual
-from plotnine.scales.scale_xy import (
-    scale_x_datetime,
-    scale_y_continuous,
-)
-
 from plotnine.facets.facet_wrap import facet_wrap
 from plotnine.geoms import geom_line
 from plotnine.geoms.geom_ribbon import geom_ribbon
 from plotnine.ggplot import ggplot
+from plotnine.labels import labs
+from plotnine.scales.scale_manual import scale_color_manual
+from plotnine.scales.scale_xy import scale_x_datetime, scale_y_continuous
 from plotnine.themes import theme
 from plotnine.themes.theme_minimal import theme_minimal
-
 from plydata.cat_tools import cat_reorder  # type: ignore
 
 
@@ -62,7 +54,14 @@ def plot_forecast(
 
     arima_forecast_df = data
 
-    required_columns = [id_column, date_column, "value", "prediction", "ci_lo", "ci_hi"]
+    required_columns = [
+        id_column,
+        date_column,
+        "value",
+        "prediction",
+        "ci_lo",
+        "ci_hi",
+    ]
 
     # Data Wrangling
     df_prepped = (
@@ -86,22 +85,31 @@ def plot_forecast(
     )
 
     # Check for period, convert to datetime64
-    if df_prepped[date_column].dtype is not "datetime64[ns]":
+    if df_prepped[date_column].dtype != "datetime64[ns]":
         # Try changing to timestamp
         try:
             df_prepped[date_column] = df_prepped[date_column].dt.to_timestamp()
-        except:
+        except ValueError:
             try:
-                df_prepped[date_column] = pd.to_datetime(df_prepped[date_column])
-            except:
-                raise Exception("Could not auto-convert `date_column` to datetime64.")
+                df_prepped[date_column] = pd.to_datetime(
+                    df_prepped[date_column]
+                )
+            except ValueError:
+                raise Exception(
+                    "Could not auto-convert `date_column` to datetime64."
+                )
 
     # Preparing the Plot
 
     # Geometries
     g = (
-        ggplot(mapping=aes(x=date_column, y="value", color="variable"), data=df_prepped)
-        + geom_ribbon(aes(ymin="ci_lo", ymax="ci_hi"), alpha=ribbon_alpha, color=None)
+        ggplot(
+            mapping=aes(x=date_column, y="value", color="variable"),
+            data=df_prepped,
+        )
+        + geom_ribbon(
+            aes(ymin="ci_lo", ymax="ci_hi"), alpha=ribbon_alpha, color=None
+        )
         + geom_line()
         + facet_wrap(id_column, ncol=facet_ncol, scales=facet_scales)
     )

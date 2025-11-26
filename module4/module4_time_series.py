@@ -1,21 +1,21 @@
 # Module 4 (Time Series): Profiling Data ----
 
 
+import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 # IMPORTS
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from transformer.bike_order_transformer import BikeOrderTransformer
 from path import Path
-import datetime
+
+from transformer.bike_order_transformer import BikeOrderTransformer
 
 database_folder_path = Path("data/database")
 
-raw_folder_path = Path("data/data_raw")
 
-conn_string = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"
-
-bike_order_line_df = BikeOrderTransformer(conn_string).transform_data()
+bike_order_line_df = BikeOrderTransformer().transform_data()
 
 # 1.0 Date basics
 
@@ -103,9 +103,11 @@ bike_order_cat2_m_df = (
 
 # single (No Group)
 
-bike_order_m_df.assign(total_price_lag_1=lambda x: x["total_price"].shift(1)).assign(
-    diff=lambda x: x["total_price"] - x["total_price_lag_1"]
-).plot(y="diff")
+bike_order_m_df.assign(
+    total_price_lag_1=lambda x: x["total_price"].shift(1)
+).assign(diff=lambda x: x["total_price"] - x["total_price_lag_1"]).plot(
+    y="diff"
+)
 
 # Same same but different
 
@@ -136,26 +138,28 @@ bike_order_m_df.reset_index().groupby(
     pd.Grouper(key="order_date", freq="YS")
 ).total_price.sum().cumsum().reset_index().assign(
     order_date=lambda x: x["order_date"].dt.to_period("Y")
-).plot(
-    kind="bar", y="total_price", x="order_date"
+).plot(kind="bar", y="total_price", x="order_date")
+
+
+bike_order_cat2_m_df.resample("Y").sum().cumsum().plot(
+    kind="bar", stacked=True
 )
-
-
-bike_order_cat2_m_df.resample("Y").sum().cumsum().plot(kind="bar", stacked=True)
 
 
 # MOving calculations
 # single
 bike_order_m_df.assign(
-    total_price_roll3=lambda x: x["total_price"].rolling(window=3,center=True,min_periods=1).mean()
+    total_price_roll3=lambda x: x["total_price"]
+    .rolling(window=3, center=True, min_periods=1)
+    .mean()
 ).plot()
 
 
-bike_order_cat2_m_df\
-.apply(lambda x: x.rolling(window=3,center=True,min_periods=1).mean()
+bike_order_cat2_m_df.apply(
+    lambda x: x.rolling(window=3, center=True, min_periods=1).mean()
 ).plot()
 
 
-bike_order_cat2_m_df\
-.rolling(window=3,center=True,min_periods=1).mean()\
-.plot()
+bike_order_cat2_m_df.rolling(
+    window=3, center=True, min_periods=1
+).mean().plot()

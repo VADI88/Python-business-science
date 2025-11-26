@@ -3,39 +3,36 @@
 
 # 1.0 Load Libraries
 
-# %%
-# Core Python Data Analysis
-import pandas as pd
-import numpy as np
-import janitor  # type: ignore
+from os import mkdir
 
 # Plotting
 import matplotlib.pyplot as plt
+import numpy as np
+
+# %%
+# Core Python Data Analysis
+import pandas as pd
+from mizani.breaks import date_breaks
+from mizani.formatters import currency_format, date_format
+from path import Path
 from plotnine import (
-    ggplot,
     aes,
-    geom_col,
+    element_text,
+    expand_limits,
+    facet_wrap,
     geom_line,
     geom_smooth,
-    facet_wrap,
-    scale_y_continuous,
-    scale_x_datetime,
+    ggplot,
     labs,
+    scale_x_datetime,
+    scale_y_continuous,
     theme,
-    theme_minimal,
     theme_matplotlib,
-    expand_limits,
-element_text
 )
-
-from mizani.breaks import date_breaks
-from mizani.formatters import date_format, currency_format
+from rich import pretty
 
 # Misc
 
-from path import Path
-from os import mkdir
-from rich import pretty
 
 pretty.install()
 
@@ -50,9 +47,7 @@ wrangled_folder_path = Path("data/data_wrangled")
 
 bikes_df = pd.read_excel(raw_folder_path / "bikes.xlsx").clean_names()  # type: ignore
 
-bike_shop_df = pd.read_excel(
-    raw_folder_path / "bikeshops.xlsx"
-).clean_names()  # type: ignore
+bike_shop_df = pd.read_excel(raw_folder_path / "bikeshops.xlsx").clean_names()  # type: ignore
 
 order_lines_df = pd.read_excel(
     io=raw_folder_path / "orderlines.xlsx", converters={"order.date": str}
@@ -73,9 +68,14 @@ plt.show()
 
 bike_order_line_joined_df = (
     order_lines_df.drop("unnamed_0", axis=1)
-    .merge(right=bikes_df, how="left", left_on="product_id", right_on="bike_id")
     .merge(
-        right=bike_shop_df, how="left", left_on="customer_id", right_on="bikeshop_id"
+        right=bikes_df, how="left", left_on="product_id", right_on="bike_id"
+    )
+    .merge(
+        right=bike_shop_df,
+        how="left",
+        left_on="customer_id",
+        right_on="bikeshop_id",
     )
 )
 
@@ -145,7 +145,6 @@ bike_order_line_cleaned_df = pd.read_pickle(
 )
 
 
-
 bike_order_line_cleaned_df["order_date"] = pd.to_datetime(
     bike_order_line_cleaned_df["order_date"]
 )
@@ -164,10 +163,15 @@ sales_by_month_df = (
 
 # %%
 
-usd_fmt = currency_format(prefix="$", big_mark=",",)
+usd_fmt = currency_format(
+    prefix="$",
+    big_mark=",",
+)
 
 sales_by_month_plot = (
-    ggplot(data=sales_by_month_df, mapping=aes(x="order_date", y="total_price"))
+    ggplot(
+        data=sales_by_month_df, mapping=aes(x="order_date", y="total_price")
+    )
     + geom_line()
     + geom_smooth(method="loess", se=False, color="blue", span=0.3)
     + scale_y_continuous(labels=usd_fmt)  # type: ignore
@@ -183,7 +187,9 @@ sales_by_month_plot.draw(True)
 
 # %%
 sales_by_month_cat2_df = (
-    bike_order_line_cleaned_df.select("order_date", "category_2", "total_price")
+    bike_order_line_cleaned_df.select(
+        "order_date", "category_2", "total_price"
+    )
     .set_index("order_date")
     .groupby("category_2")
     .resample(rule="W")
@@ -213,15 +219,17 @@ sales_by_month_cat2_plot = (
     )
     + geom_line(color="#2c3e50")
     + geom_smooth(method="lm", se=False, color="blue")
-    + scale_y_continuous(labels = usd_fmt) # type: ignore
-    + scale_x_datetime(breaks = date_breaks("2 years"),labels = date_format("%Y-%m")) # type: ignore
+    + scale_y_continuous(labels=usd_fmt)  # type: ignore
+    + scale_x_datetime(
+        breaks=date_breaks("2 years"), labels=date_format("%Y-%m")
+    )  # type: ignore
     + facet_wrap("category_2", ncol=3, scales="free_y")
     + labs(title="Revenue by week", x="", y="Revenue in USD$")
     + theme(
-        subplots_adjust = {'w_space': 0.3},
-        axis_text_y= element_text(size = 6),
-        axis_text_x= element_text(size = 6 ,angle=45))
-
+        subplots_adjust={"w_space": 0.3},
+        axis_text_y=element_text(size=6),
+        axis_text_x=element_text(size=6, angle=45),
+    )
 )
 
 
