@@ -84,20 +84,7 @@ def plot_forecast(
         ascending=False,
     )
 
-    # Check for period, convert to datetime64
-    if df_prepped[date_column].dtype != "datetime64[ns]":
-        # Try changing to timestamp
-        try:
-            df_prepped[date_column] = df_prepped[date_column].dt.to_timestamp()
-        except ValueError:
-            try:
-                df_prepped[date_column] = pd.to_datetime(
-                    df_prepped[date_column]
-                )
-            except ValueError:
-                raise Exception(
-                    "Could not auto-convert `date_column` to datetime64."
-                )
+    df_prepped = convert_to_datetime(df_prepped,date_column)
 
     # Preparing the Plot
 
@@ -135,3 +122,21 @@ def plot_forecast(
     )
 
     return g
+
+
+def convert_to_datetime(df_prepped,date_column):
+    # Check for period, convert to datetime64
+    if df_prepped[date_column].dtype != "datetime64[ns]":
+        # Try changing to timestamp
+        try:
+            df_prepped[date_column] = df_prepped[date_column].dt.to_timestamp()
+        except ValueError:
+            try:
+                df_prepped[date_column] = pd.to_datetime(
+                        df_prepped[date_column]
+                )
+            except ValueError:
+                raise Exception(
+                        "Could not auto-convert `date_column` to datetime64."
+                )
+    return df_prepped
