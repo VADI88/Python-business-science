@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import Engine
 
+from my_pandas_extension.plot_forecast import convert_to_datetime
 from settings import CONN_STRING, SQL_DTYPES
 from my_pandas_extension.utils import with_db_connection, prepare_data
 
@@ -23,10 +24,12 @@ class DataAccess(BaseModel):
     # ----------------------------------------------------------------
     # Validation (performed only ON-DEMAND during write)
     # ----------------------------------------------------------------
-    def _validate_dataframe(self, df: pd.DataFrame) -> None:
+    def _validate_dataframe(
+        self, df: pd.DataFrame, id_column, date_column
+    ) -> None:
         required = {
-            self.id_column,
-            self.date_column,
+            id_column,
+            date_column,
             "value",
             "prediction",
             "ci_lo",
@@ -73,7 +76,7 @@ class DataAccess(BaseModel):
             )  # type: ignore
 
         # validate dataframe ONLY at write time
-        self._validate_dataframe(df)
+        self._validate_dataframe(df, id_column, date_column)
 
         # write to database
         df.to_sql(
