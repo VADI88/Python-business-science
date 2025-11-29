@@ -1,9 +1,10 @@
+from functools import wraps
+from typing import Any, Callable, List, Literal, ParamSpec, TypeVar
+
+import janitor  # type: ignore
 import pandas as pd
 import pandas_flavor as pf  # type: ignore
 from pydantic import ConfigDict, validate_call
-from functools import wraps
-from typing import Any, Callable, List, Literal, ParamSpec, TypeVar
-import janitor  # type: ignore
 
 from my_pandas_extension.plot_forecast import convert_to_datetime
 
@@ -19,14 +20,12 @@ def prepare_data(data: pd.DataFrame, id_column: str, date_column: str):
 
     data = data.rename(columns={id_column: "id", date_column: "date"})
 
-    data = data.reorder_columns(["id", "date"]) #type:ignore
+    data = data.reorder_columns(["id", "date"])  # type:ignore
 
-    data['date'] = data['date'].dt.to_timestamp()
+    data["date"] = data["date"].dt.to_timestamp()
 
-    data = convert_to_datetime(data,date_column='date')
+    data = convert_to_datetime(data, date_column="date")
     return data
-
-
 
 
 def with_db_connection(func: Callable[P, R]) -> Callable[P, R]:

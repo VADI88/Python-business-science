@@ -16,7 +16,6 @@ from plotnine import (
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
-
 raw_folder_path = Path("data/data_raw")
 
 

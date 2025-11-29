@@ -26,7 +26,7 @@ def summarize_by_time(
     date_column: Optional[str] = None,
     wide_format: bool = True,
     groups: Optional[GroupKeys] = None,
-    rules: Literal["D", "MS", "YS"] = "D",
+    rules: Literal["D", "MS", "QE", "Q", "YS"] = "D",
     agg_func: Union[str, callable] = "sum",
     time_format: Literal["timestamp", "period"] = "timestamp",
     na_value: int = 0,

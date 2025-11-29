@@ -1,6 +1,7 @@
+from typing import List
+
 from path import Path
 from sqlalchemy.types import Numeric, String
-from typing import List
 
 database_folder_path = Path("data/database")
 CONN_STRING = f"sqlite:///{database_folder_path}/bikes_order_database.sqlite"

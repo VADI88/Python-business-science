@@ -17,7 +17,6 @@ from plotnine import (
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
-
 bike_order_line_df = BikeOrderTransformer().transform_data()
 
 bike_order_line_df["order_date"] = pd.to_datetime(
