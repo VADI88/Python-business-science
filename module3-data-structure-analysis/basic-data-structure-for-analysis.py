@@ -6,7 +6,6 @@ from path import Path
 
 from transformer.bike_order_transformer import BikeOrderTransformer
 
-
 bike_order_line_df = BikeOrderTransformer().transform_data()
 
 type(bike_order_line_df)  # <class 'pandas.core.frame.DataFrame'>

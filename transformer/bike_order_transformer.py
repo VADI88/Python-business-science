@@ -1,12 +1,11 @@
 # SQL DATABASES (Module 2): Working with SQLAlchemy ----
 import os
 from typing import Literal
-import janitor  #
-
+import janitor  # type: ignore # isort: skip
 import pandas as pd
 from path import Path
+from helper.utils import with_db_connection  # isort : skip
 
-from my_pandas_extension.utils import with_db_connection
 from settings import SELECTED_COLUMN_TO_KEEP
 from transformer.data_access import DataAccess
 

@@ -1,8 +1,7 @@
 # Library
 import pandas as pd
+
 from my_pandas_extension.plot_forecast import plot_forecast
-from my_pandas_extension.timeseries_func import summarize_by_time
-from my_pandas_extension.utils import prepare_data
 from transformer.bike_order_transformer import BikeOrderTransformer
 from transformer.data_access import DataAccess
 from transformer.forecasting import Forecaster
@@ -72,13 +71,20 @@ forecast_by_cat2_df = forecast_by_cat2_df.prepare_data(
     id_column="category_2", date_column="order_date"
 )
 
-g = plot_forecast(forecast_by_cat2_df, id_column="id", date_column="date",facet_ncol=3)
+g = plot_forecast(
+    forecast_by_cat2_df, id_column="id", date_column="date", facet_ncol=3
+)
 g.show()
 
-all_forecast_df = pd.concat([forecast_df,forecast_by_cat1_df,forecast_by_cat2_df],ignore_index=True)
+all_forecast_df = pd.concat(
+    [forecast_df, forecast_by_cat1_df, forecast_by_cat2_df], ignore_index=True
+)
 
 
-db_access = DataAccess.write_data_to_db(data=all_forecast_df
-                                          ,table_name="forecast",if_exists="replace",
-                                          id_column = 'id',date_column = 'date'
-                                          )
+db_access = DataAccess.write_data_to_db(
+    data=all_forecast_df,
+    table_name="forecast",
+    if_exists="replace",
+    id_column="id",
+    date_column="date",
+)

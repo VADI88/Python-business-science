@@ -7,9 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import Engine
 
-from my_pandas_extension.plot_forecast import convert_to_datetime
+from helper.utils import prepare_data, with_db_connection
 from settings import CONN_STRING, SQL_DTYPES
-from my_pandas_extension.utils import with_db_connection, prepare_data
 
 
 class DataAccess(BaseModel):

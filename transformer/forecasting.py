@@ -1,3 +1,4 @@
+import warnings
 from typing import Annotated, Literal
 
 import numpy as np
@@ -5,6 +6,10 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, StrictFloat, model_validator
 from sktime.forecasting.arima import AutoARIMA
 from tqdm import tqdm
+
+warnings.filterwarnings(
+    "ignore", message="'force_all_finite'", category=FutureWarning
+)
 
 
 class Forecaster(BaseModel):
