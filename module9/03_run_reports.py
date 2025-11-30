@@ -59,10 +59,10 @@ class RunReport(BaseModel):
         params = self.build_param()
 
         pm.execute_notebook(
-                input_path=self.template_path,
-                output_path=self.output_path,
-                parameters=params,
-                report_mode=True,
+            input_path=self.template_path,
+            output_path=self.output_path,
+            parameters=params,
+            report_mode=True,
         )
 
         pass
